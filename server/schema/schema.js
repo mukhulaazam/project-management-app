@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLSchema, GraphQLList, GraphQLNonNull } = require('graphql')
+const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLSchema, GraphQLList, GraphQLNonNull, GraphQLEnumType } = require('graphql')
 const { projects, clients } = require('./sampleData')
 
 const Project = require('../config/models/Project');
@@ -76,7 +76,7 @@ const mutation = new GraphQLObjectType({
                 phone: new GraphQLNonNull(GraphQLString),
             },
             resolve(parent, id) {
-                const client = new client({
+                const client = new Client({
                     name: this.args.name,
                     email: this.args.email,
                     phone: this.args.phone
@@ -94,7 +94,35 @@ const mutation = new GraphQLObjectType({
                 return Client.findByIdAndDelete(args.id);
             }
         },
-        
+        // @des :: Project create
+        createProject: {
+            type: ProjectType,
+            args: {
+                name: {type: GraphQLNonNull(GraphQLString)},
+                description: {type: GraphQLNonNull(GraphQLString)},
+                status: {
+                    type: new GraphQLEnumType({
+                        name: 'ProjectStatus',
+                        values: {
+                            'new' : {value: 'Not Started'},
+                            'progress' : {value: 'In Progress'},
+                            'complete' : {value: 'Complete'},
+                        }
+                    }),
+                    defaultValue: 'Not Started',
+                },
+                clientId: {type: GraphQLNonNull(GraphQLID)}
+            },
+            resolve(parent, id) {
+                const project = new Project({
+                    name: args.name,
+                    description: args.description,
+                    status: args.status,
+                    clientId: args.clientId
+                });
+                return project.save();
+            }
+        }
     }
 });
 
