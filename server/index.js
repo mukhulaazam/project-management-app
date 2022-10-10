@@ -9,7 +9,7 @@ const connectDb = require('./config/db')
 
 const PORT = process.env.PORT || 5000;
 const app = express();
-// connectDb();
+connectDb();
 
 // @des :: initilize GraphQl Entry points
 app.use('/graphql', graphqlHTTP({
